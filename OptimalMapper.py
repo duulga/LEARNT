@@ -12,7 +12,7 @@
  """
 
 #AMOUNT OF RANDOM SAMPLES GENERATED
-INSTANCE_AMOUNT = 1000
+INSTANCE_AMOUNT = 100
 
 def parse_functions_from_assembly(file_path):
     with open(file_path, 'r') as file:
@@ -92,6 +92,10 @@ def extract_BBs_assembly(function):
             #if(isBody):
             if(line[1] != '.'):
             #print(bb_body)
+                at_pos = line.find('[')
+                at_pos_2 = line.find(']') + 1
+                if(at_pos != -1):
+                    line = line.replace(line[at_pos:at_pos_2], line[at_pos:at_pos_2].replace(" ", ""))
                 bb_body += line.strip("\t")
         else:
             extracted_BBs[bb_name] = bb_body
@@ -128,6 +132,10 @@ def extract_BBs_ir(function):
                     line = line[:at_pos - 2] + "\n"
                     bb_body += line.strip(" ")
                 else:
+                    at_pos = line.find("!")
+                    if(at_pos != -1):
+                        #removing !llvm.loop !10 etc. which is included in some br instructions
+                        line = line[: at_pos - 2]
                     bb_body += line.strip(" ")
                 
         else:
@@ -143,6 +151,43 @@ def extract_BBs_ir(function):
 
     extracted_BBs.pop("")
     return extracted_BBs
+
+def normalizer(extracted_assembly_BBs):
+    for extracted_bb_name in extracted_assembly_BBs:
+        count = 1
+        new_bb_line = ""
+        immediate_values = {}
+        extracted_bb = extracted_assembly_BBs[extracted_bb_name]
+        for line in extracted_bb.split('\n'):
+            line_list = line.split()
+            for token in line_list:
+                try:
+                    temp = int(token)
+                    token = str(temp)
+
+                    if(token in immediate_values):
+                        #print(f'###DEBUG {line}')
+                        new_token = immediate_values[token]
+                        line_list[line_list.index(token)] = new_token
+                        line = " ".join(line_list)
+                        #print(f'###DEBUG {line}')
+
+                    else:
+                
+                        #print(f'###DEBUG {line}')
+                        new_token = 'v' + str(count)
+                        immediate_values[token] = new_token
+                        count = count + 1
+                        line_list[line_list.index(token)] = new_token
+                        line = " ".join(line_list)
+                        #print(f'###DEBUG {line}')
+                except ValueError:
+                    line = line.replace('\t', ' ')
+
+            new_bb_line = new_bb_line + line + '\n' 
+        extracted_assembly_BBs[extracted_bb_name] = new_bb_line
+
+        #print(f"#####RESULT: {extracted_assembly_BBs[extracted_bb_name]}")
 
 def output_emitter(instance_amount):
     ir_count = 1
@@ -162,11 +207,12 @@ def output_emitter(instance_amount):
         for function_name in ir_functions:
                 extracted_ir_BBs = extract_BBs_ir(ir_functions[function_name])
                 extracted_assembly_BBs = extract_BBs_assembly(assembly_functions[function_name])
-
+                #normalizer(extracted_assembly_BBs)
                 for extracted_bb_name in extracted_assembly_BBs:
                     bb_name = "bb" + str(temp_count)
                     if extracted_bb_name in extracted_ir_BBs:
-                        ir_BBs[bb_name] = extracted_ir_BBs[extracted_bb_name]
+                        #Sentinels for data normalization
+                        ir_BBs[bb_name] = "[start] " + extracted_ir_BBs[extracted_bb_name] + "[end]"
                         assembly_BBs[bb_name] = extracted_assembly_BBs[extracted_bb_name]
                         pair = (ir_BBs[bb_name], assembly_BBs[bb_name])
                         pairs.append(pair)
@@ -194,8 +240,8 @@ def output_emitter(instance_amount):
     output_path = './pairs.txt'
     with open(output_path, 'w') as file:
         for items in pairs:
-            file.write(items[0])
-            file.write(items[1])
+            file.write(items[0] + '\n')
+            file.write(items[1] + '\n')
     
     return pairs
 
@@ -213,7 +259,6 @@ def corpus_emitter(instance_amount):
                     #file.write(lines)
         corpus = corpus.replace('\n\n\n', '\n\n')
         file.write(corpus)
-
 
 output_emitter(INSTANCE_AMOUNT)
 corpus_emitter(INSTANCE_AMOUNT)
