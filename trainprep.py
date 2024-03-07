@@ -49,11 +49,11 @@ class CustomSchedule(tf.keras.optimizers.schedules.LearningRateSchedule):
         }
         return config
 
-key_dim = 128
-lr = CustomSchedule(key_dim)
-optimizer = tf.keras.optimizers.Adam(lr, beta_1=0.9, beta_2=0.98, epsilon=1e-9)
+# key_dim = 128
+# lr = CustomSchedule(key_dim)
+# optimizer = tf.keras.optimizers.Adam(lr, beta_1=0.9, beta_2=0.98, epsilon=1e-9)
 
-plt.plot(lr(tf.range(50000, dtype=tf.float32)))
-plt.ylabel('Learning Rate')
-plt.xlabel('Train Step')
-plt.show()
+# plt.plot(lr(tf.range(50000, dtype=tf.float32)))
+# plt.ylabel('Learning Rate')
+# plt.xlabel('Train Step')
+# plt.show()

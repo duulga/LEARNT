@@ -14,12 +14,14 @@ def self_attention(input_shape, prefix="att", mask=False, **kwargs):
     inputs = tf.keras.layers.Input(shape=input_shape, dtype='float32',
                                    name=f"{prefix}_in1")
     attention = tf.keras.layers.MultiHeadAttention(name=f"{prefix}_attn1", **kwargs)
-    norm = tf.keras.layers.LayerNormalization(name=f"{prefix}_norm1")
+    norm = tf.keras.layers.LayerNormalization(name=f"{prefix}_norm1", epsilon=1e-7)
     add = tf.keras.layers.Add(name=f"{prefix}_add1")
     # functional API to connect input to output
     attout = attention(query=inputs, value=inputs, key=inputs,
                        use_causal_mask=mask)
     outputs = norm(add([inputs, attout]))
+    # assert that the tensors does not contain any NaNs or Infs
+    # tf.debugging.assert_all_finite(inputs)
     # create model and return
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name=f"{prefix}_att")
     return model
@@ -38,7 +40,7 @@ def cross_attention(input_shape, context_shape, prefix="att", **kwargs):
     inputs = tf.keras.layers.Input(shape=input_shape, dtype='float32',
                                    name=f"{prefix}_in2")
     attention = tf.keras.layers.MultiHeadAttention(name=f"{prefix}_attn2", **kwargs)
-    norm = tf.keras.layers.LayerNormalization(name=f"{prefix}_norm2")
+    norm = tf.keras.layers.LayerNormalization(name=f"{prefix}_norm2", epsilon=1e-7)
     add = tf.keras.layers.Add(name=f"{prefix}_add2")
     # functional API to connect input to output
     attout = attention(query=inputs, value=context, key=context)
@@ -70,33 +72,33 @@ def feed_forward(input_shape, model_dim, ff_dim, dropout=0.1, prefix="ff"):
     add = tf.keras.layers.Add(name=f"{prefix}_add3")
     # functional API to connect input to output
     ffout = drop(dense2(dense1(inputs)))
-    norm = tf.keras.layers.LayerNormalization(name=f"{prefix}_norm3")
+    norm = tf.keras.layers.LayerNormalization(name=f"{prefix}_norm3", epsilon=1e-7)
     outputs = norm(add([inputs, ffout]))
     # create model and return
     model = tf.keras.Model(inputs=inputs, outputs=outputs, name=f"{prefix}_ff")
     return model
 
-seq_length = 20
-key_dim = 128
-num_heads = 8
+# seq_length = 20
+# key_dim = 128
+# num_heads = 8
 
-model = self_attention(input_shape=(seq_length, key_dim),
-                       num_heads=num_heads, key_dim=key_dim)
-tf.keras.utils.plot_model(model, "self-attention.png",
-                          show_shapes=True, show_dtype=True, show_layer_names=True,
-                          rankdir='BT', show_layer_activations=True)
+# model = self_attention(input_shape=(seq_length, key_dim),
+#                        num_heads=num_heads, key_dim=key_dim)
+# tf.keras.utils.plot_model(model, "self-attention.png",
+#                           show_shapes=True, show_dtype=True, show_layer_names=True,
+#                           rankdir='BT', show_layer_activations=True)
 
-model = cross_attention(input_shape=(seq_length, key_dim),
-                        context_shape=(seq_length, key_dim),
-                        num_heads=num_heads, key_dim=key_dim)
-tf.keras.utils.plot_model(model, "cross-attention.png",
-                          show_shapes=True, show_dtype=True, show_layer_names=True,
-                          rankdir='BT', show_layer_activations=True)
+# model = cross_attention(input_shape=(seq_length, key_dim),
+#                         context_shape=(seq_length, key_dim),
+#                         num_heads=num_heads, key_dim=key_dim)
+# tf.keras.utils.plot_model(model, "cross-attention.png",
+#                           show_shapes=True, show_dtype=True, show_layer_names=True,
+#                           rankdir='BT', show_layer_activations=True)
 
-ff_dim = 512
+# ff_dim = 512
 
-model = feed_forward(input_shape=(seq_length, key_dim),
-                     model_dim=key_dim, ff_dim=ff_dim)
-tf.keras.utils.plot_model(model, "feedforward.png",
-                          show_shapes=True, show_dtype=True, show_layer_names=True,
-                          rankdir='BT', show_layer_activations=True)
+# model = feed_forward(input_shape=(seq_length, key_dim),
+#                      model_dim=key_dim, ff_dim=ff_dim)
+# tf.keras.utils.plot_model(model, "feedforward.png",
+#                           show_shapes=True, show_dtype=True, show_layer_names=True,
+#                           rankdir='BT', show_layer_activations=True)

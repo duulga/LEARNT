@@ -85,7 +85,30 @@ def tokenizer(bb_pairs):
         tokenized_pairs.append(pairs)
     return sorted(assembly_tokens), sorted(ir_tokens),immediate_values_asm, immediate_values_ir, tokenized_pairs
 
-def vectorizer(tokens, bbs):
+def vectorizer_with_dic(dic, bbs, length):
+    new_bbs = []
+    
+    for bb in bbs:
+        new_bb = []
+        for token in bb.split():
+            new_bb.append(dic[token])
+        new_bbs.append(new_bb)
+
+    max = length
+    for i in range(len(new_bbs)):
+        size = len(new_bbs[i])
+        if(size > max):
+            new_bbs[i] = new_bbs[i][:max]
+        else:
+            padding = max - size
+            for _ in range(padding):
+                new_bbs[i].append(0)
+    
+    arr = numpy.array(new_bbs, dtype="object")
+    #print(f"DEBUGDEBUG {arr}")
+    return arr, new_bbs
+
+def vectorizer(tokens, bbs, length):
     vector_dict = {}
     vector = 1
     for token in tokens:
@@ -95,7 +118,6 @@ def vectorizer(tokens, bbs):
     count = 0
     new_bbs = []
     for bb in bbs:
-        #temp = set()
         new_bb = []
         for token in bb.split():
             new_bb.append(vector_dict[token])
@@ -103,19 +125,24 @@ def vectorizer(tokens, bbs):
         new_bbs.append(new_bb)
         count += 1
     #Finding longest basic block
-    max = len(new_bbs[0])
-    for i in new_bbs:
-        length = len(i)
-        if(max < length):
-            max = length
-
+    #max = len(new_bbs[0])
+    # for i in new_bbs:
+    #     print(f"#DEBUG {len(i)}" )
+    #     length = len(i)
+    #     if(max < length):
+    #         max = length
+    max = length
     #print(f"Longest: {max}")
+
     #Make the array homogenous
-    for i in new_bbs:
-        length = len(i)
-        padding = max - length
-        for _ in range(padding):
-            i.append(0)
+    for i in range(len(new_bbs)):
+        size = len(new_bbs[i])
+        if(size > max):
+            new_bbs[i] = new_bbs[i][:max]
+        else:
+            padding = max - size
+            for _ in range(padding):
+                new_bbs[i].append(0)
     
     arr = numpy.array(new_bbs, dtype="object")
     #print(f"DEBUGDEBUG {arr}")

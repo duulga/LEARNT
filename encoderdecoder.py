@@ -32,19 +32,19 @@ def decoder(input_shape, key_dim, ff_dim, dropout=0.1, prefix="dec", **kwargs):
     model = tf.keras.Model(inputs=[(inputs, context)], outputs=output, name=prefix)
     return model
 
-seq_length = 20
-key_dim = 128
-ff_dim = 512
-num_heads = 8
+# seq_length = 20
+# key_dim = 128
+# ff_dim = 512
+# num_heads = 8
 
-model = encoder(input_shape=(seq_length, key_dim), key_dim=key_dim, ff_dim=ff_dim,
-                num_heads=num_heads)
-tf.keras.utils.plot_model(model, "encoder.png",
-                          show_shapes=True, show_dtype=True, show_layer_names=True,
-                          rankdir='BT', show_layer_activations=True)
+# model = encoder(input_shape=(seq_length, key_dim), key_dim=key_dim, ff_dim=ff_dim,
+#                 num_heads=num_heads)
+# tf.keras.utils.plot_model(model, "encoder.png",
+#                           show_shapes=True, show_dtype=True, show_layer_names=True,
+#                           rankdir='BT', show_layer_activations=True)
 
-model = decoder(input_shape=(seq_length, key_dim), key_dim=key_dim, ff_dim=ff_dim,
-                num_heads=num_heads)
-tf.keras.utils.plot_model(model, "decoder.png",
-                          show_shapes=True, show_dtype=True, show_layer_names=True,
-                          rankdir='BT', show_layer_activations=True)
+# model = decoder(input_shape=(seq_length, key_dim), key_dim=key_dim, ff_dim=ff_dim,
+#                 num_heads=num_heads)
+# tf.keras.utils.plot_model(model, "decoder.png",
+#                           show_shapes=True, show_dtype=True, show_layer_names=True,
+#                           rankdir='BT', show_layer_activations=True)

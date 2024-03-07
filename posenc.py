@@ -1,7 +1,6 @@
 import numpy as np
 import tensorflow as tf
 
-
 def pos_enc_matrix(L, d, n=10000):
     """Create positional encoding matrix
 
@@ -25,30 +24,21 @@ def pos_enc_matrix(L, d, n=10000):
     P[:, 1::2] = np.cos(args)
     return P
 
-
-# Plot the positional encoding matrix
-# pos_enc_matrix = posenc.pos_enc_matrix(2048, 512)
-# assert pos_enc_matrix.shape == (2048,512)
-# plt.plot(pos_enc_matrix[100], alpha=0.66, color="red", label = "position 100")
-# plt.plot(pos_enc_matrix[1000], alpha=0.66, color="blue", label = "position 1000")
-# plt.legend()
-# plt.show()
-
 class PositionalEmbedding(tf.keras.layers.Layer):
     """Positional embedding layer. Assume tokenized input, transform into
     embedding and returns positional-encoded output."""
     def __init__(self, sequence_length, vocab_size, embed_dim, **kwargs):
         """
         Args:
-            sequence_length: Input sequence length
-            vocab_size: Input vocab size, for setting up embedding matrix
-            embed_dim: Embedding vector size, for setting up embedding matrix
+            sequence_length: Input sequence length 200
+            vocab_size: Input vocab size, for setting up embedding matrix ASM_VOCAB_SIZE or IR_VOCAB_SIZE
+            embed_dim: Embedding vector size, for setting up embedding matrix 128
         """
         super().__init__(**kwargs)
         self.sequence_length = sequence_length
         self.vocab_size = vocab_size
         self.embed_dim = embed_dim     # d_model in paper
-        # token embedding layer: Convert integer token to D-dim fltokenizedoat vector
+        # token embedding layer: Convert integer token to D-dim tokenized float vector
         self.token_embeddings = tf.keras.layers.Embedding(
             input_dim=vocab_size, output_dim=embed_dim, mask_zero=True
         )
@@ -76,3 +66,4 @@ class PositionalEmbedding(tf.keras.layers.Layer):
             "embed_dim": self.embed_dim,
         })
         return config
+    

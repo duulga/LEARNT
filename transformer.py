@@ -1,8 +1,8 @@
 import tensorflow as tf
 
-# the positional embedding layer from Lesson 05
+# the positional embedding layer
 from posenc import PositionalEmbedding
-# the building block functions from Lesson 07
+# the building block functions
 from encoderdecoder import encoder, decoder
 
 
@@ -42,19 +42,19 @@ def transformer(num_layers, num_heads, seq_len, key_dim, ff_dim, vocab_size_src,
     return model
 
 
-seq_len = 20
-num_layers = 4
-num_heads = 8
-key_dim = 128
-ff_dim = 512
-dropout = 0.1
-vocab_size_en = 10000
-vocab_size_fr = 20000
-model = transformer(num_layers, num_heads, seq_len, key_dim, ff_dim,
-                    vocab_size_en, vocab_size_fr, dropout)
-tf.keras.utils.plot_model(model, "transformer.png",
-                          show_shapes=True, show_dtype=True, show_layer_names=True,
-                          rankdir='BT', show_layer_activations=True)
+# seq_len = 20
+# num_layers = 4
+# num_heads = 8
+# key_dim = 128
+# ff_dim = 512
+# dropout = 0.1
+# vocab_size_en = 10000
+# vocab_size_fr = 20000
+# model = transformer(num_layers, num_heads, seq_len, key_dim, ff_dim,
+#                     vocab_size_en, vocab_size_fr, dropout)
+# tf.keras.utils.plot_model(model, "transformer.png",
+#                           show_shapes=True, show_dtype=True, show_layer_names=True,
+#                           rankdir='BT', show_layer_activations=True)
 
 def masked_loss(label, pred):
     mask = label != 0

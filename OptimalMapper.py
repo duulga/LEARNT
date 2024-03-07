@@ -12,7 +12,7 @@
  """
 
 #AMOUNT OF RANDOM SAMPLES GENERATED
-INSTANCE_AMOUNT = 100
+INSTANCE_AMOUNT = 25000
 
 def parse_functions_from_assembly(file_path):
     with open(file_path, 'r') as file:
@@ -261,4 +261,4 @@ def corpus_emitter(instance_amount):
         file.write(corpus)
 
 output_emitter(INSTANCE_AMOUNT)
-corpus_emitter(INSTANCE_AMOUNT)
+#corpus_emitter(INSTANCE_AMOUNT)
