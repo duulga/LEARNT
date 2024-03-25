@@ -108,6 +108,27 @@ def vectorizer_with_dic(dic, bbs, length):
     #print(f"DEBUGDEBUG {arr}")
     return arr, new_bbs
 
+def vectorizer_with_dic_single_bb(dic, bb, length):
+
+    new_bb = []
+    for token in bb.split():
+        new_bb.append(dic[token])
+
+    max = length
+    size = len(new_bb)
+    if(size > max):
+        new_bb = new_bb[:max]
+    else:
+        padding = max - size
+        for _ in range(padding):
+            new_bb.append(0)
+    
+    arr = numpy.array(new_bb, dtype="object")
+    arr = numpy.reshape(arr, (1, length))
+    arr = arr.astype(numpy.float32)
+    #print(f"DEBUGDEBUG {arr}")
+    return arr, new_bb
+
 def vectorizer(tokens, bbs, length):
     vector_dict = {}
     vector = 1
@@ -148,7 +169,75 @@ def vectorizer(tokens, bbs, length):
     #print(f"DEBUGDEBUG {arr}")
     return vector_dict, arr, new_bbs
 
+def single_tokenizer(bbs):
+    tokenized_bbs = []
+    tokens = set()
+    immediate_values = {}
+    iv_count = 0
 
+    bb_tok = bbs.split()
+
+    for token in bb_tok:
+        try:
+            temp = int(token)
+            token = str(temp)
+            if(token in immediate_values.values()):
+                index = 0
+                for alr_tokens in immediate_values:
+                    if(immediate_values[alr_tokens] == token):
+                        #print(f"DEBUGDEBUG token: {token} alr_token: {alr_tokens}")
+                        bb_tok[bb_tok.index(token)] = alr_tokens
+                    else: pass
+            else:
+                new_token = "iv" + str(iv_count)
+                immediate_values[new_token] = token
+                #print(f"DEBUGDEBUG token: {token} replace_token: {new_token}")
+                iv_count += 1
+                bb_tok[bb_tok.index(token)] = new_token
+
+        except ValueError:
+            pass
+    
+        tokens.update(bb_tok)
+        tokenized_bbs.append(" ".join(bb_tok))
+    
+    return tokenized_bbs
+
+def single_tokenizer_single_bb(bb):
+    tokenized_bb = []
+    tokens = set()
+    immediate_values = {}
+    iv_count = 0
+
+    bb_tok = bb.split()
+
+    for token in bb_tok:
+        try:
+            temp = int(token)
+            token = str(temp)
+            if(token in immediate_values.values()):
+                index = 0
+                for alr_tokens in immediate_values:
+                    if(immediate_values[alr_tokens] == token):
+                        #print(f"DEBUGDEBUG token: {token} alr_token: {alr_tokens}")
+                        bb_tok[bb_tok.index(token)] = alr_tokens
+                    else: pass
+            else:
+                new_token = "iv" + str(iv_count)
+                immediate_values[new_token] = token
+                #print(f"DEBUGDEBUG token: {token} replace_token: {new_token}")
+                iv_count += 1
+                bb_tok[bb_tok.index(token)] = new_token
+
+        except ValueError:
+            pass
+    
+        tokens.update(bb_tok)
+    
+    return " ".join(bb_tok)
+
+    
+    
     
 
     
