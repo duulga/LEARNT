@@ -245,20 +245,4 @@ def output_emitter(instance_amount):
     
     return pairs
 
-
-def corpus_emitter(instance_amount):
-    output_path = './corpus.txt'
-    corpus = ''
-    with open(output_path , 'w') as file:
-        for i in range(1, instance_amount + 1):
-            i = str(i)
-            file_path = './corpus/instance' + i + '/random' + i + '.txt'
-            with open(file_path, 'r') as file_to_read:
-                for lines in file_to_read:
-                    corpus += lines
-                    #file.write(lines)
-        corpus = corpus.replace('\n\n\n', '\n\n')
-        file.write(corpus)
-
 output_emitter(INSTANCE_AMOUNT)
-#corpus_emitter(INSTANCE_AMOUNT)

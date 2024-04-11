@@ -21,61 +21,48 @@ def normalizer(bb_pairs):
     #print(normalized)
     return normalized
 
+def imm_val_tokenization(bb):
+    """ 
+        Tokenize immediate values 
+        of the input basic block
+    """
+    immediate_values = {}
+    
+    tokens = bb.split()
+
+    new_bb = ""
+    iv_count = 0
+
+    for token in tokens:
+        try: 
+            temp = int(token)
+            token = str(temp)
+            if(token in immediate_values.values()):
+                for alr_tokens in immediate_values:
+                    if(immediate_values[alr_tokens] == token):
+                        tokens[tokens.index(token)] = alr_tokens
+                    else: pass
+                pass
+            else:
+                new_token = "iv" + str(iv_count)
+                immediate_values[new_token] = token
+                iv_count += 1
+                tokens[tokens.index(token)] = new_token
+
+        except ValueError:
+            pass
+    
+    return " ".join(tokens)
+
 def tokenizer(bb_pairs):
     tokenized_pairs = []
     assembly_tokens, ir_tokens = set(), set()
-    immediate_values_asm = {}
-    immediate_values_ir = {}
-    iv_count_asm = 0
-    iv_count_ir = 0
     for ir, assembly in bb_pairs:
         #print(f"###DEBUG Assembly in pair: {assembly}")
         #print(f"###DEBUG IR in pair: {ir}")=
-        assembly_tok, ir_tok = assembly.split(), ir.split()
+        assembly_tok, ir_tok = imm_val_tokenization(assembly).split(), imm_val_tokenization(ir).split()
         #print(f"###DEBUG Assembly after split {assembly_tok}")
         #print(f"###DEBUG IR after split {ir_tok}")
-
-        for token in assembly_tok:
-            try:
-                temp = int(token)
-                token = str(temp)
-                if(token in immediate_values_asm.values()):
-                    index = 0
-                    for alr_tokens in immediate_values_asm:
-                        if(immediate_values_asm[alr_tokens] == token):
-                            #print(f"DEBUGDEBUG token: {token} alr_token: {alr_tokens}")
-                            assembly_tok[assembly_tok.index(token)] = alr_tokens
-                        else: pass
-                else:
-                    new_token = "iv" + str(iv_count_asm)
-                    immediate_values_asm[new_token] = token
-                    #print(f"DEBUGDEBUG token: {token} replace_token: {new_token}")
-                    iv_count_asm += 1
-                    assembly_tok[assembly_tok.index(token)] = new_token
-
-            except ValueError:
-                pass
-        
-        for token in ir_tok:
-            try:
-                temp = int(token)
-                token = str(temp)
-
-                if(token in immediate_values_ir.values()):
-                    for alr_tokens in immediate_values_ir:
-                        if(immediate_values_ir[alr_tokens] == token):
-                            #print(f"DEBUG token : {token} alr_token: {alr_tokens}")
-                            ir_tok[ir_tok.index(token)] = alr_tokens
-                        else: pass
-                else:
-                    new_token = "iv" + str(iv_count_ir)
-                    immediate_values_ir[new_token] = token
-                    #print(f"DEBUGDEBUG token: {token} replace_token: {new_token}")
-                    iv_count_ir += 1
-                    ir_tok[ir_tok.index(token)] = new_token
-
-            except ValueError:
-                pass
 
         assembly_tokens.update(assembly_tok)
         ir_tokens.update(ir_tok)
@@ -83,7 +70,8 @@ def tokenizer(bb_pairs):
         pairs.append(" ".join(assembly_tok))
         pairs.append(" ".join(ir_tok))
         tokenized_pairs.append(pairs)
-    return sorted(assembly_tokens), sorted(ir_tokens),immediate_values_asm, immediate_values_ir, tokenized_pairs
+    return sorted(assembly_tokens), sorted(ir_tokens), tokenized_pairs
+
 
 def vectorizer_with_dic(dic, bbs, length):
     new_bbs = []
@@ -204,35 +192,9 @@ def single_tokenizer(bbs):
     return tokenized_bbs
 
 def single_tokenizer_single_bb(bb):
-    tokenized_bb = []
     tokens = set()
-    immediate_values = {}
-    iv_count = 0
-
-    bb_tok = bb.split()
-
-    for token in bb_tok:
-        try:
-            temp = int(token)
-            token = str(temp)
-            if(token in immediate_values.values()):
-                index = 0
-                for alr_tokens in immediate_values:
-                    if(immediate_values[alr_tokens] == token):
-                        #print(f"DEBUGDEBUG token: {token} alr_token: {alr_tokens}")
-                        bb_tok[bb_tok.index(token)] = alr_tokens
-                    else: pass
-            else:
-                new_token = "iv" + str(iv_count)
-                immediate_values[new_token] = token
-                #print(f"DEBUGDEBUG token: {token} replace_token: {new_token}")
-                iv_count += 1
-                bb_tok[bb_tok.index(token)] = new_token
-
-        except ValueError:
-            pass
-    
-        tokens.update(bb_tok)
+    bb_tok = imm_val_tokenization(bb).split()
+    tokens.update(bb_tok)
     
     return " ".join(bb_tok)
 

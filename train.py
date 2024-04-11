@@ -20,13 +20,13 @@ from transformer import transformer, masked_accuracy, masked_loss, CustomSchedul
 CORPUS_SIZE = 25000
 ASM_VOCAB_SIZE = 0
 IR_VOCAB_SIZE = 0
-MAX_BB_LENGTH = 150
+MAX_BB_LENGTH = 80
 ASM_DIC = {}
 IR_DIC = {}
 
-pairs = normalizer(output_emitter(CORPUS_SIZE))
-with open("temp.pickle", "wb") as fp:
-    pickle.dump(pairs,fp)
+# pairs = normalizer(output_emitter(CORPUS_SIZE))
+# with open("temp.pickle", "wb") as fp:
+#     pickle.dump(pairs,fp)
 
 #Load normalized basic block pairs
 with open("temp.pickle", "rb") as fp:
@@ -54,7 +54,7 @@ def make_dataset(pairs, batch_size=64):
     # Create Tensorflow Dataset for the basic block pairs
     global MAX_BB_LENGTH
     # unpack the basic blocks
-    asm_tokens, ir_tokens, asm_iv_dict, ir_iv_dict, tokenized_pairs = tokenizer(pairs)
+    asm_tokens, ir_tokens, tokenized_pairs = tokenizer(pairs)
     asm_bbs = [pair[0] for pair in tokenized_pairs]
     ir_bbs = [pair[1] for pair in tokenized_pairs]
     _, asm_vectorized = vectorizer_with_dic(ASM_DIC, asm_bbs, MAX_BB_LENGTH)
@@ -86,13 +86,19 @@ def make_dataset(pairs, batch_size=64):
     return dataset.shuffle(2048).batch(batch_size).map(format_dataset).prefetch(16).cache()
 
 print("Getting the size of vocabs")
-asm_tokens, ir_tokens, asm_iv_dict, ir_iv_dict, tokenized_pairs = tokenizer(bb_pairs)
+asm_tokens, ir_tokens, tokenized_pairs = tokenizer(bb_pairs)
 asm_bbs = [pair[0] for pair in tokenized_pairs]
 ir_bbs = [pair[1] for pair in tokenized_pairs]
 ASM_DIC, _, asm_vectorized = vectorizer(asm_tokens, asm_bbs, MAX_BB_LENGTH)
 IR_DIC, _, ir_vectorized = vectorizer(ir_tokens, ir_bbs, MAX_BB_LENGTH + 1)
 ASM_VOCAB_SIZE = len(ASM_DIC)
 IR_VOCAB_SIZE = len(IR_DIC)
+
+with open("asm_dic.pickle", "wb") as fp:
+    pickle.dump(ASM_DIC,fp)
+
+with open("ir_dic.pickle", "wb") as fp:
+    pickle.dump(IR_DIC,fp)
 
 # print("Checking the vectors!...")
 # max = 0
@@ -163,8 +169,8 @@ ff_dim = 512
 dropout = 0.1
 # vocab_size_asm = 20000  
 # vocab_size_ir = 30000
-vocab_size_asm = ASM_VOCAB_SIZE + 100
-vocab_size_ir = IR_VOCAB_SIZE + 100
+vocab_size_asm = ASM_VOCAB_SIZE + 10
+vocab_size_ir = IR_VOCAB_SIZE + 10
 
 print(f'Initiating model... with ASM_VOCAB_SIZE: {vocab_size_asm}, IR_VOCAB_SIZE: {vocab_size_ir}, seq_len: {seq_len}')
 model = transformer(num_layers, num_heads, seq_len, key_dim, ff_dim,
