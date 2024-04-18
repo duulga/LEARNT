@@ -8,6 +8,9 @@ from Tokenizer import imm_val_tokenization, vectorizer, single_tokenizer_single_
 from posenc import PositionalEmbedding
 from trainprep import CustomSchedule, masked_loss, masked_accuracy
 
+import os
+os.environ['CUDA_VISIBLE_DEVICES'] = "0"
+
 MAX_BB_LENGTH = 80
 
 # Load normalized basic block pairs
@@ -64,7 +67,11 @@ def translate(basic_block):
     asm_vectors, _ = vectorizer_with_dic_single_bb(ASM_DIC, enc_tokens, seq_len)
 
     lookup = list(IR_DIC)
+    # print(IR_DIC.keys())
+    # print(IR_DIC.values())
+    # print(lookup)
     start_sentinel, end_sentinel = "[start]", "[end]"
+    vector_output = [start_sentinel]
     output_bb = [start_sentinel]
     #generate the translated bb token by token
     for i in range(seq_len):
@@ -78,20 +85,27 @@ def translate(basic_block):
         # print(f'FOR DEBUG~ dec_tokens: {dec_tokens}th')
         pred = model([asm_vectors, dec_tokens])
         assert pred.shape == (1, seq_len, ir_vocab_size)
-        word = lookup[np.argmax(pred[0, i, :])]
-
+        the_word = np.argmax(pred[0, i, :])
+        vector_output.append(str(the_word))
+        word = lookup[the_word-1]
         output_bb.append(word)
         if word == end_sentinel:
             break
-    return output_bb
+    return output_bb, vector_output, enc_tokens
 
 test_count = 20
 for n in range(test_count):
-    ir_bb, asm_bb = random.choice(test_pairs)
+
+    input_ir_bb, input_asm_bb = random.choice(test_pairs)
+    temp_ir, temp_asm = input_ir_bb.split()[:80], input_asm_bb.split()[:80]
+    ir_bb, asm_bb = " ".join(temp_ir), " ".join(temp_asm)
+
     # print(f'FOR DEBUG~ asm_bb: {asm_bb}')
-    translated = translate(asm_bb)
-    print(f"Test {n}:")
-    print(f"{asm_bb}")
-    print(f"== {ir_bb}")
+    translated, vector_translated, enc_tokens = translate(asm_bb)
+    tokenized = imm_val_tokenization(ir_bb)
+    print(f"Test {n+1}:")
+    print(f"{enc_tokens}")
+    print(f"== {tokenized}")
+    print(f":) {' '.join(vector_translated)}")
     print(f"-> {' '.join(translated)}")
     print()
