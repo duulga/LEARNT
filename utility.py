@@ -5,7 +5,7 @@
 import pickle
 # import matplotlib.pyplot as plt
 import random
-from Tokenizer import tokenizer, vectorizer, normalizer
+from Tokenizer import tokenizer, vectorizer, normalizer, orig_tokenizer
 from OptimalMapper import output_emitter
 
 def check_length_distribution():
@@ -111,14 +111,11 @@ def count_pairs():
     print(f' Total number of pairs: {len(bb_pairs)}')
 
 def check_function_placeholder(corpus_size):
-    pairs = normalizer(output_emitter(corpus_size))    
-    asm_tokens, ir_tokens, tokenized_pairs = tokenizer(pairs)
-    with open("old_tok_pairs.txt", "w") as fp:
-        for token in asm_tokens:
-            fp.write(f"{token}\n")
-    with open("tokenized_pairs.txt", "w") as ff:
-        for token in ir_tokens:
-            ff.write(f"{token}\n")
-    
+    pairs = normalizer(output_emitter(corpus_size))
 
+    asm_tokens, ir_tokens, new_tokenized_pairs = tokenizer(pairs)            
+    with open("asm_tokens.txt", "w") as ff:
+        for apair in asm_tokens:
+            ff.write(f"{apair}\n")
+    
 check_function_placeholder(1000)
