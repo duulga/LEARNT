@@ -191,8 +191,8 @@ def normalizer(extracted_assembly_BBs):
 
 def output_emitter(instance_amount):
     ir_count = 1
-    assembly_count = 1
     pairs = []
+
     for i in range(1, instance_amount+1):
         i = str(i)
         assembly_file_path = './corpus/instance' + i + '/random' + i + '.s'
@@ -218,9 +218,13 @@ def output_emitter(instance_amount):
                         pairs.append(pair)
                         temp_count += 1
                     ir_count += 1
+        
+        # Placeholder for identifying function boundaries
+        placeholder = ("[PROGRAM_END]","")
+        pairs.append(placeholder)
                     
 
-        temp_count = 1 
+        temp_count = 1
         # print(f"###DEBUG IR dict keys {ir_BBs.keys()}")
         # print(f"###DEBUG IR dict length {len(ir_BBs)}")
         # print(f"###DEBUG Assembly dict keys {assembly_BBs.keys()}")

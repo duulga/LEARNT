@@ -4,7 +4,7 @@ import pickle
 import numpy as np
 import tensorflow as tf
 
-from Tokenizer import imm_val_tokenization, vectorizer, single_tokenizer_single_bb, vectorizer_with_dic_single_bb
+from Tokenizer import imm_val_tokenization, vectorizer, vectorizer_with_dic_single_bb
 from posenc import PositionalEmbedding
 from trainprep import CustomSchedule, masked_loss, masked_accuracy
 

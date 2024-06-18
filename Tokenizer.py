@@ -57,22 +57,50 @@ def imm_val_tokenization(bb):
 def tokenizer(bb_pairs):
     tokenized_pairs = []
     assembly_tokens, ir_tokens = set(), set()
+    # FOP: From one program
+    assemblies_fop, irs_fop = "", ""
     for ir, assembly in bb_pairs:
-        #print(f"###DEBUG Assembly in pair: {assembly}")
-        #print(f"###DEBUG IR in pair: {ir}")=
-        assembly_tok, ir_tok = imm_val_tokenization(assembly).split(), imm_val_tokenization(ir).split()
+        # print(f"###DEBUG Assembly in pair: {assembly}")
+        # print(f"###DEBUG IR in pair: {ir}")
+        if(ir.split()[0] == '[PROGRAM_END]'):
+            assembly_tok, ir_tok = imm_val_tokenization(assemblies_fop).split(), imm_val_tokenization(irs_fop).split()
+            # print(f"###DEBUG Assembly_tok: {assembly_tok}")
+            # print(f"###DEBUG ir_tok: {ir_tok}")
+            # FOP: From one program
+            assemblies_fop, irs_fop = "", ""
+            assembly_tokens.update(assembly_tok)
+            ir_tokens.update(ir_tok)
+            # b2bb: back to basic block
+            b2bb_asm = back_to_bb(assembly_tok)
+            b2bb_ir = back_to_bb(ir_tok)
+            for i in range(0, len(b2bb_asm)):
+                pairs = []
+                pairs.append(b2bb_asm[i])
+                pairs.append(b2bb_ir[i])
+                tokenized_pairs.append(pairs)
+
+        else:
+            # print(f"DEBUG assemblies_fop: {assemblies_fop}")
+            assemblies_fop = assemblies_fop + " " + assembly + '[bb]'
+            irs_fop = irs_fop + " " + ir + " " + '[bb]'
         #print(f"###DEBUG Assembly after split {assembly_tok}")
         #print(f"###DEBUG IR after split {ir_tok}")
-
-        assembly_tokens.update(assembly_tok)
-        ir_tokens.update(ir_tok)
-        pairs = []
-        pairs.append(" ".join(assembly_tok))
-        pairs.append(" ".join(ir_tok))
-        tokenized_pairs.append(pairs)
     return sorted(assembly_tokens), sorted(ir_tokens), tokenized_pairs
 
-
+def back_to_bb(abstracted_bbs):
+    pairs = []
+    # Back to basic block
+    b2bb = []
+    #empty list
+    empty = []
+    for token in abstracted_bbs:
+        if(token == '[bb]'):
+            pairs.append(" ".join(b2bb))
+            b2bb = empty
+        else:
+            b2bb.append(token)
+    return pairs
+        
 def vectorizer_with_dic(dic, bbs, length):
     new_bbs = []
     
@@ -84,7 +112,7 @@ def vectorizer_with_dic(dic, bbs, length):
 
     max = length
     for i in range(len(new_bbs)):
-        size = len(new_bbs[i])
+        size = len(new_bbs[i]) 
         if(size > max):
             new_bbs[i] = new_bbs[i][:max]
         else:
