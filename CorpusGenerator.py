@@ -42,7 +42,8 @@ def generate(number, config):
 
     output_path = "./corpus/instance"
     #Execution
-    for i in range(1, number):
+    # for i in range(1, number):
+    for i in range(25001, number):
         output_name = output_path + str(i) + "/random" + str(i) + ".c"
         command2generate = GENERATOR_PATH + generator_options + ">" + output_name
         subprocess.run(command2generate, shell=True)
@@ -70,7 +71,7 @@ def compile_all(number):
 
 def emit_llvm_all(number):
     compiler_options = "-I ~/csmith-install/include/ -S -emit-llvm -w "
-    for i in range(1, number):
+    for i in range(25001, number):
         target_path = "./corpus/instance" + str(i) + "/random" + str(i) + ".c "
         llvm_output_path = target_path[:-3] + ".ll"
         command2compile = COMPILER_PATH + compiler_options + target_path + "-o " + llvm_output_path
@@ -79,7 +80,7 @@ def emit_llvm_all(number):
 
 def emit_assembly_all(number):
     compiler_options = "--x86-asm-syntax=intel "
-    for i in range(1, number):
+    for i in range(25001, number):
         target_path = "./corpus/instance" + str(i) + "/random" + str(i) + ".ll "
         assembly_output_path = target_path[:-4] + ".s"
         command2compile = LLC_PATH + compiler_options + target_path + "-o " + assembly_output_path
@@ -91,11 +92,11 @@ if __name__ == "__main__":
     args = arg_parser()
     config = "./config.json"
     quantity = int(args.quantity) + 1
-    generate_dirs(quantity) 
+    # generate_dirs(quantity) 
     #generate C files
-    #generate(quantity, config)
+    # generate(quantity, config)
     #Generate binary
-    #compile_all(quantity)
+    # compile_all(quantity)
     #Generate llvm IR 
     emit_llvm_all(quantity)
     #Generate target-specific assembly files

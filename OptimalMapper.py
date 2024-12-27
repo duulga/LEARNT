@@ -212,7 +212,7 @@ def output_emitter(instance_amount):
                     bb_name = "bb" + str(temp_count)
                     if extracted_bb_name in extracted_ir_BBs:
                         #Sentinels for data normalization
-                        ir_BBs[bb_name] = "[start] " + extracted_ir_BBs[extracted_bb_name] + "[end]"
+                        ir_BBs[bb_name] = "[start] " + extracted_ir_BBs[extracted_bb_name].rstrip('\n') + " [end]"
                         assembly_BBs[bb_name] = extracted_assembly_BBs[extracted_bb_name]
                         pair = (ir_BBs[bb_name], assembly_BBs[bb_name])
                         pairs.append(pair)
@@ -220,8 +220,8 @@ def output_emitter(instance_amount):
                     ir_count += 1
         
         # Placeholder for identifying function boundaries
-        placeholder = ("[PROGRAM_END]","")
-        pairs.append(placeholder)
+        #placeholder = ("[PROGRAM_END]","")
+        #pairs.append(placeholder)
                     
 
         temp_count = 1

@@ -9,7 +9,7 @@
 
 from OptimalMapper import output_emitter
 from Tokenizer import tokenizer, vectorizer, normalizer, vectorizer_with_dic
-import pickle
+import pickle, sys
 import random
 import tensorflow as tf
 import numpy as np
